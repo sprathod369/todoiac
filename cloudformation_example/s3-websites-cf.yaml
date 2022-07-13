@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+    DevSite:
+      Type: AWS::S3::Bucket
+      Properties:
+        AccessControl: PublicRead
+        BucketName: vulnerable-dev-s3
+        WebsiteConfiguration:
+          IndexDocument: index.html
+          ErrorDocument: index.html
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins:
+              - "*"
+              AllowedMethods:
+              - "GET"
+              AllowedHeaders:
+              - "Authorization"
+              MaxAge: 3000
+        Tags:
+          - Key: "system"
+            Value: "prizm-ui"
+      DeletionPolicy: Retain
+
+   
+    DevBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref DevSite
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Action:
+              - "s3:GetObject"
+              Effect: "Allow"
+              Principal: "*"
+              Resource:
+                Fn::Join:
+                  - ''
+                  - - "arn:aws:s3:::"
+                    - !Ref DevSite
+                    - "/*"
+
+
